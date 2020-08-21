@@ -1,0 +1,59 @@
+{
+    "name": "antidot-fw/installer",
+    "description": "Antidot Framework skeleton installer",
+    "keywords": [
+        "psr-7",
+        "psr-11",
+        "psr-15"
+    ],
+    "type": "composer-plugin",
+    "license": "BSD-2-Clause",
+    "authors": [
+        {
+            "name": "kpicaza"
+        }
+    ],
+    "require": {
+        "php": "^7.4.0",
+        "psr/container": "^1.0.0"
+    },
+    "require-dev": {
+        "filp/whoops": "^2.3",
+        "franzl/whoops-middleware": "^1.1",
+        "phpro/grumphp": "^0.17.1 || ^0.19.0 || ^0.20.0",
+        "phpstan/phpstan": "^0.11.5 || ^0.12.0",
+        "phpunit/phpunit": "^8.0 || ^9.0",
+        "squizlabs/php_codesniffer": "^3.4",
+        "symfony/var-dumper": "^4.2 || ^5.0",
+        "vimeo/psalm": "^3.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "Antidot\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AntidotTest\\": "test"
+        }
+    },
+    "scripts": {
+        "check-all": [
+            "@cs-check",
+            "@test",
+            "@inspect",
+            "@psalm"
+        ],
+        "cs-check": "phpcs src --colors",
+        "cs-fix": "phpcbf src --colors",
+        "inspect": "phpstan analyse src -l7 --ansi",
+        "psalm": "psalm",
+        "test": "phpunit --colors=always"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "class": "Antidot\\Installer\\Console"
+    }
+}
