@@ -10,11 +10,10 @@ Antidot Framework Wee
 Antidot Framework skeleton installer. This package let you choosing between different types of Antidot framework project skeletons:
 
 * Classic Web App
+* Serverless App
 * Console Line Tool
 * Micro Http App
 * React Http App
-
-
 
 ## Requirements
 
