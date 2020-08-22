@@ -8,7 +8,6 @@ use Composer\IO\IOInterface;
 
 use InvalidArgumentException;
 
-use function dirname;
 use function is_dir;
 use function sprintf;
 use function substr;
@@ -26,12 +25,12 @@ class InstallationPath
     {
         do {
             $isValidInstallationPath = $this->io->askConfirmation(
-                sprintf('The application will be installed at "%s" directory [Y/N]: ', $installationPath),
+                sprintf('The application will be installed at "%s" directory [<info>Y</info>/N]: ', $installationPath),
                 true
             );
             if (false === $isValidInstallationPath) {
                 $installationPath = trim($this->io->ask(
-                    'Add the absolute path to install the project [/opt/app]: ',
+                    'Add the absolute path to install the project [<info>/opt/app</info>]: ',
                     '/opt/app'
                 ));
             }
