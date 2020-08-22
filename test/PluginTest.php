@@ -6,24 +6,21 @@ declare(strict_types=1);
 namespace AntidotTest\Installer;
 
 use Antidot\Installer\Plugin;
-use Antidot\Installer\Question\ApplicationType;
+use Antidot\Installer\Question\ApplicationTypes;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Script\Event;
-use Composer\Script\ScriptEvents;
 use PHPUnit\Framework\TestCase;
 
 class PluginTest extends TestCase
 {
     private $composer;
     private $io;
-    private $plugin;
 
     public function setUp(): void
     {
         $this->composer = $this->createMock(Composer::class);
         $this->io = $this->createMock(IOInterface::class);
-        $this->plugin = new Plugin();
     }
 
     public function testGetSubscribedEvents(): void
@@ -38,9 +35,10 @@ class PluginTest extends TestCase
         $event = $this->createMock(Event::class);
         $this->io->expects($this->once())
             ->method('select')
-            ->with(ApplicationType::QUESTION, ApplicationType::OPTIONS, ApplicationType::WEB_APP)
+            ->with(ApplicationTypes::QUESTION, ApplicationTypes::OPTIONS, ApplicationTypes::WEB_APP)
             ->willReturn(0);
-        $this->plugin->activate($this->composer, $this->io);
-        $this->plugin->onCreateProject($event);
+        $plugin = new Plugin();
+        $plugin->activate($this->composer, $this->io);
+        $plugin->onCreateProject($event);
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Antidot\Installer\Question;
 
-class ApplicationType
+class ApplicationTypes
 {
     public const QUESTION = 'What type of application you want to install?';
     public const WEB_APP = 'Classic Web App';

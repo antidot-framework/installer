@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Antidot\Installer;
 
-use Antidot\Installer\Question\ApplicationType;
+use Antidot\Installer\ApplicationType\ApplicationTypeFactory;
+use Antidot\Installer\Question\ApplicationTypes;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
@@ -16,11 +17,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 {
     protected Composer $composer;
     protected IOInterface $io;
+    protected ApplicationTypeFactory $applicationTypeFactory;
 
     public function activate(Composer $composer, IOInterface $io): void
     {
         $this->composer = $composer;
         $this->io = $io;
+        $this->applicationTypeFactory = new ApplicationTypeFactory();
     }
 
 
@@ -36,11 +39,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         /** @var int $answer */
         $answer = $this->io->select(
-            ApplicationType::QUESTION,
-            ApplicationType::OPTIONS,
-            ApplicationType::WEB_APP
+            ApplicationTypes::QUESTION,
+            ApplicationTypes::OPTIONS,
+            ApplicationTypes::WEB_APP
         );
 
-        $this->io->write(ApplicationType::OPTIONS[$answer]);
+        $installer = ApplicationTypeFactory::createByApplicationTypeName(ApplicationTypes::OPTIONS[$answer]);
+        $installer->install($this->io);
     }
 }
