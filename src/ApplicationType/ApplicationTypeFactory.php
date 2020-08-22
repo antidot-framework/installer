@@ -18,6 +18,9 @@ class ApplicationTypeFactory
         if (ApplicationTypes::WEB_APP === $applicationType) {
             return new WebAppInstaller();
         }
+        if (ApplicationTypes::MICRO_APP === $applicationType) {
+            return new MicroAppInstaller();
+        }
 
         throw new InvalidArgumentException(sprintf(
             self::INVALID_TYPE_MESSAGE,

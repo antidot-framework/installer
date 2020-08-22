@@ -45,6 +45,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         );
 
         $installer = ApplicationTypeFactory::createByApplicationTypeName(ApplicationTypes::OPTIONS[$answer]);
-        $installer->install($this->io);
+        $installer->install($this->io, $this->composer);
     }
 }
