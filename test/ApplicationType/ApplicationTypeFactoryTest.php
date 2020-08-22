@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace AntidotTest\Installer\ApplicationType;
 
 use Antidot\Installer\ApplicationType\ApplicationTypeFactory;
+use Antidot\Installer\ApplicationType\MicroAppInstaller;
 use Antidot\Installer\ApplicationType\WebAppInstaller;
 use Antidot\Installer\Question\ApplicationTypes;
 use InvalidArgumentException;
@@ -33,6 +34,10 @@ class ApplicationTypeFactoryTest extends TestCase
             [
                 ApplicationTypes::WEB_APP,
                 WebAppInstaller::class,
+            ],
+            [
+                ApplicationTypes::MICRO_APP,
+                MicroAppInstaller::class,
             ],
         ];
     }
