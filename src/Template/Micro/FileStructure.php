@@ -36,11 +36,8 @@ class FileStructure
             throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
         }
 
-        if (!is_readable($installationPath) && 2 !== count((array) scandir($installationPath))) {
-            throw new RuntimeException(sprintf(
-                'Given directory "%s" is not readable or is not empty.',
-                $installationPath
-            ));
+        if (!is_readable($installationPath)) {
+            throw new RuntimeException(sprintf('Given directory "%s" is not readable.', $installationPath));
         }
 
         foreach (self::DIRECTORIES as $directory) {
