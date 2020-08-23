@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Antidot\Installer\ApplicationType;
 
 use Antidot\Installer\Question\ApplicationTypes;
+use Antidot\Installer\RunInstall;
 use Antidot\Installer\Template\ComposerJson;
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -21,11 +22,13 @@ class ApplicationTypeFactory
         IOInterface $io,
         Composer  $composer
     ): App {
+        $composerManipulator = new ComposerJson($io, new RunInstall());
+
         if (ApplicationTypes::WEB_APP === $applicationType) {
-            return new WebAppInstaller($io, $composer, new ComposerJson($io));
+            return new WebAppInstaller($io, $composer, $composerManipulator);
         }
         if (ApplicationTypes::MICRO_APP === $applicationType) {
-            return new MicroAppInstaller($io, $composer, new ComposerJson($io));
+            return new MicroAppInstaller($io, $composer, $composerManipulator);
         }
 
         throw new InvalidArgumentException(sprintf(

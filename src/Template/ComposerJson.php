@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Antidot\Installer\Template;
 
+use Antidot\Installer\RunInstall;
 use Composer\Factory;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use Composer\Json\JsonManipulator;
 
-use function Antidot\Installer\exec;
 use function array_merge;
 use function file_get_contents;
 use function file_put_contents;
@@ -19,10 +19,12 @@ use function sprintf;
 class ComposerJson
 {
     private IOInterface $io;
+    private RunInstall $runInstall;
 
-    public function __construct(IOInterface $io)
+    public function __construct(IOInterface $io, RunInstall $runInstall)
     {
         $this->io = $io;
+        $this->runInstall = $runInstall;
     }
 
     /**
@@ -32,6 +34,7 @@ class ComposerJson
      */
     public function prepare(string $installationPath, array $dependencies, array $removePatterns): void
     {
+
         // Update composer.json (project is proprietary by default)
         /** @psalm-suppress MixedArgument */
         $json = new JsonFile(Factory::getComposerFile());
@@ -67,6 +70,9 @@ class ComposerJson
 
         file_put_contents($installationPath . '/composer.json', $contents);
 
-        exec(sprintf('cd %s && rm -rf vendor/ composer.lock && composer install  --ansi', $installationPath));
+        $this->runInstall->exec(sprintf(
+            'cd %s && rm -rf vendor/ composer.lock && composer install  --ansi',
+            $installationPath
+        ));
     }
 }
