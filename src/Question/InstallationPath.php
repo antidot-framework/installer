@@ -6,30 +6,29 @@ namespace Antidot\Installer\Question;
 
 use Composer\IO\IOInterface;
 
-use RuntimeException;
-
-use function is_dir;
-use function mkdir;
 use function sprintf;
 use function substr;
 
 class InstallationPath
 {
     private IOInterface $io;
-    private bool $defaultValue;
+    private bool $defaultAnswer;
 
-    public function __construct(IOInterface $io, bool $defaultValue = true)
+    public function __construct(IOInterface $io, bool $defaultAnswer = true)
     {
         $this->io = $io;
-        $this->defaultValue = $defaultValue;
+        $this->defaultAnswer = $defaultAnswer;
     }
 
     public function ask(string $installationPath): string
     {
         do {
             $isValidInstallationPath = $this->io->askConfirmation(
-                sprintf('The application will be installed at "%s" directory [<info>Y</info>/N]: ', $installationPath),
-                $this->defaultValue
+                sprintf(
+                    'The application will be installed at "<info>%s</info>" directory [<info>Y</info>/N]: ',
+                    $installationPath
+                ),
+                $this->defaultAnswer
             );
             if (false === $isValidInstallationPath) {
                 $installationPath = trim($this->io->ask(
