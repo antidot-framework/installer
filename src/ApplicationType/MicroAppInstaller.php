@@ -11,8 +11,7 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 
 use function dirname;
-use function exec;
-use function sprintf;
+use function file_exists;
 use function unlink;
 
 class MicroAppInstaller implements App
@@ -30,29 +29,37 @@ class MicroAppInstaller implements App
         '/PULL_REQUEST_TEMPLATE.md',
         '/LICENSE',
     ];
+    private IOInterface $io;
+    private Composer $composer;
+    private InstallationPath $installationPathQuestion;
+    private FileStructure $fileStructure;
+    private ComposerJson $manipulator;
 
-    public function install(IOInterface $io, Composer $composer): void
+    public function __construct(IOInterface $io, Composer $composer, ComposerJson $manipulator)
     {
-        $installationPathQuestion = new InstallationPath($io);
-        $installationPath = $installationPathQuestion->ask(
-            dirname($composer->getInstallationManager()->getInstallPath($composer->getPackage()), 3) . '/'
+        $this->composer = $composer;
+        $this->installationPathQuestion = new InstallationPath($io);
+        $this->fileStructure = new FileStructure();
+        $this->manipulator = $manipulator;
+    }
+
+    public function install(): void
+    {
+        $installationPath = $this->installationPathQuestion->ask(
+            dirname($this->composer->getInstallationManager()->getInstallPath(
+                $this->composer->getPackage()
+            ), 3) . '/'
         );
 
-        $fileStructure = new FileStructure();
-        $fileStructure->create($installationPath);
+        $this->fileStructure->create($installationPath);
 
         foreach (self::COMMUNITY_FILES as $fileToDelete) {
-            @unlink($installationPath . $fileToDelete);
+            $filePath = $installationPath . $fileToDelete;
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
 
-        $manipulator = new ComposerJson($io);
-        $manipulator->prepare($installationPath, self::DEPENDENCIES, [
-            '{^\s*+"name":.*,$\n}m',
-            '{^\s*+"description":.*,$\n}m',
-            '{^\s*+"antidot-fw\/installer":.*,$\n}m',
-            '{^\s*+"repositories":.*$\n^\s*+\{$\n^\s*+.*,$\n^\s*+.*$\n^\s*+\}$\n^\s*+\],$\n}m' // only for development
-        ]);
-
-        exec(sprintf('cd %s && rm -rf vendor/ composer.lock && composer install  --ansi', $installationPath));
+        $this->manipulator->prepare($installationPath, self::DEPENDENCIES, []);
     }
 }

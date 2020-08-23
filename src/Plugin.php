@@ -37,14 +37,21 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function onCreateProject(Event $event): void
     {
+        if ('antidot-fw/skeleton' !== $this->composer->getPackage()->getName()) {
+            return;
+        }
+
         /** @var int $answer */
         $answer = $this->io->select(
             ApplicationTypes::QUESTION,
             ApplicationTypes::OPTIONS,
             ApplicationTypes::WEB_APP
         );
-
-        $installer = ApplicationTypeFactory::createByApplicationTypeName(ApplicationTypes::OPTIONS[$answer]);
-        $installer->install($this->io, $this->composer);
+        $installer = ApplicationTypeFactory::createByApplicationTypeName(
+            ApplicationTypes::OPTIONS[$answer],
+            $this->io,
+            $this->composer
+        );
+        $installer->install();
     }
 }

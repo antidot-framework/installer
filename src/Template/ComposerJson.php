@@ -9,7 +9,8 @@ use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use Composer\Json\JsonManipulator;
 
-use function exec;
+use function Antidot\Installer\exec;
+use function array_merge;
 use function file_get_contents;
 use function file_put_contents;
 use function preg_replace;
@@ -43,8 +44,15 @@ class ComposerJson
             $manipulator->addLink('require', $package, $version);
         }
 
+        $matchPatterns = array_merge([
+            '{^\s*+"name":.*,$\n}m',
+            '{^\s*+"description":.*,$\n}m',
+            '{^\s*+"antidot-fw\/installer":.*,$\n}m',
+            '{^\s*+"repositories":.*$\n^\s*+\{$\n^\s*+.*,$\n^\s*+.*$\n^\s*+\}$\n^\s*+\],$\n}m' // only for development
+        ], $removePatterns);
+
         /** @psalm-suppress MixedArgument */
-        $contents = preg_replace($removePatterns, '', $manipulator->getContents(), 1);
+        $contents = preg_replace($matchPatterns, '', $manipulator->getContents(), 1);
 
         $namespace = $this->io->ask('Select the primary namespace for your application [<info>App</info>]: ', 'App');
         $contents = preg_replace(
