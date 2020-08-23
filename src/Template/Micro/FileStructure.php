@@ -9,6 +9,7 @@ use RuntimeException;
 use function file_put_contents;
 use function is_dir;
 use function mkdir;
+use function scandir;
 use function sprintf;
 
 class FileStructure
@@ -31,6 +32,17 @@ class FileStructure
 
     public function create(string $installationPath): void
     {
+        if (!is_dir($installationPath) && !mkdir($dir = $installationPath, 0755, true) && !is_dir($dir)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
+        }
+
+        if (!is_readable($installationPath) && 2 !== count((array) scandir($installationPath))) {
+            throw new RuntimeException(sprintf(
+                'Given directory "%s" is not readable or is not empty.',
+                $installationPath
+            ));
+        }
+
         foreach (self::DIRECTORIES as $directory) {
             if (!mkdir($dir = sprintf('%s/%s', $installationPath, $directory), 0755, true) && !is_dir($dir)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
