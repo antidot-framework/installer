@@ -6,49 +6,40 @@ declare(strict_types=1);
 namespace AntidotTest\Installer\Template;
 
 use Antidot\Installer\ApplicationType\MicroAppInstaller;
+use Antidot\Installer\RunInstall;
 use Antidot\Installer\Template\ComposerJson;
 use Composer\IO\IOInterface;
-use Exception;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
-use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
 
 use function putenv;
 
-
-/**
- * @runInSeparateProcess
- */
 class ComposerJsonTest extends TestCase
 {
-    use PHPMock;
-
     private $io;
-    private $exec;
+    private $runInstall;
 
     public function setUp(): void
     {
         $this->io = $this->createMock(IOInterface::class);
+        $this->runInstall = $this->createMock(RunInstall::class);
     }
 
     /**
      * @dataProvider getComposerJsonFile
-     * It must run in separate process to allow mocking "exec" function.
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
      */
     public function testItShouldPrepareComposerJsonFile(array $currentFileSystem, array $expectedFileSystem): void
     {
-        $exec = $this->getFunctionMock('Antidot\Installer', "exec");
         vfsStream::setup('my-dir', null, $currentFileSystem);
         putenv('COMPOSER=' . vfsStream::url('my-dir') . '/composer.json');
-        $exec->expects($this->once());
         $this->io->expects($this->once())
             ->method('ask')
             ->willReturn('Micro');
+        $this->runInstall->expects($this->once())
+            ->method('exec');
 
-        $composerJson = new ComposerJson($this->io);
+        $composerJson = new ComposerJson($this->io, $this->runInstall);
         $composerJson->prepare(vfsStream::url('my-dir') . '/app', MicroAppInstaller::DEPENDENCIES, []);
         $this->assertEquals($expectedFileSystem, vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure());
     }
