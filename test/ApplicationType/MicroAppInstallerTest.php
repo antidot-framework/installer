@@ -55,6 +55,9 @@ class MicroAppInstallerTest extends TestCase
         $basePath = vfsStream::url('my-dir');
         $installPath = $basePath . '/vendor/antidot-fw/skeleton';
         $package = $this->createConfiguredMock(Package::class, ['getName' => 'antidot-fw/skeleton']);
+        $this->io->expects($this->exactly(2))
+            ->method('askConfirmation')
+            ->willReturnOnConsecutiveCalls(true, false);
         $this->installationManager->expects($this->once())
             ->method('getInstallPath')
             ->with($package)

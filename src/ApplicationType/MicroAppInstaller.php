@@ -6,13 +6,12 @@ namespace Antidot\Installer\ApplicationType;
 
 use Antidot\Installer\Question\InstallationPath;
 use Antidot\Installer\Template\ComposerJson;
+use Antidot\Installer\Template\FileStructureFactory;
 use Antidot\Installer\Template\Micro\FileStructure;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 
 use function dirname;
-use function file_exists;
-use function unlink;
 
 class MicroAppInstaller implements App
 {
@@ -22,24 +21,19 @@ class MicroAppInstaller implements App
         'antidot-fw/fast-router-adapter' => '^0.1.0',
     ];
 
-    public const COMMUNITY_FILES = [
-        '/CHANGELOG.md',
-        '/CODE_OF_CONDUCT.md',
-        '/CONTRIBUTING.md',
-        '/PULL_REQUEST_TEMPLATE.md',
-        '/LICENSE',
-    ];
     private Composer $composer;
     private InstallationPath $installationPathQuestion;
-    private FileStructure $fileStructure;
+    private FileStructureFactory $fileStructure;
     private ComposerJson $manipulator;
+    private DockerEnvironmentInstaller $dockerInstaller;
 
     public function __construct(IOInterface $io, Composer $composer, ComposerJson $manipulator)
     {
         $this->composer = $composer;
+        $this->manipulator = $manipulator;
+        $this->dockerInstaller = new DockerEnvironmentInstaller($io);
         $this->installationPathQuestion = new InstallationPath($io);
         $this->fileStructure = new FileStructure();
-        $this->manipulator = $manipulator;
     }
 
     public function install(): void
@@ -50,15 +44,8 @@ class MicroAppInstaller implements App
             ), 3) . '/'
         );
 
+        $this->dockerInstaller->install($installationPath);
         $this->fileStructure->create($installationPath);
-
-        foreach (self::COMMUNITY_FILES as $fileToDelete) {
-            $filePath = $installationPath . $fileToDelete;
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-        }
-
         $this->manipulator->prepare($installationPath, self::DEPENDENCIES, []);
     }
 }

@@ -20,7 +20,7 @@ class ApplicationTypeFactory
     public static function createByApplicationTypeName(
         string $applicationType,
         IOInterface $io,
-        Composer  $composer
+        Composer $composer
     ): App {
         $composerManipulator = new ComposerJson($io, new RunInstall());
 
