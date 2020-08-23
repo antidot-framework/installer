@@ -1,4 +1,4 @@
-Antidot Framework Wee
+Antidot Framework Installer
 =================
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/antidot-framework/installer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/antidot-framework/installer/?branch=master)
@@ -7,7 +7,7 @@ Antidot Framework Wee
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/antidot-framework/installer/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
 [![Maintainability](https://api.codeclimate.com/v1/badges/aaa9bb8ececfaa6276b3/maintainability)](https://codeclimate.com/github/antidot-framework/installer/maintainability)
 
-Antidot Framework skeleton installer. This package let you choosing between different types of Antidot framework project skeletons:
+Antidot Framework skeleton installer is a composer plugiin that allow you choosing between different types of Antidot framework project skeletons:
 
 * Classic Web App
 * Serverless App
