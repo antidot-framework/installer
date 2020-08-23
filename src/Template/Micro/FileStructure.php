@@ -25,14 +25,14 @@ class FileStructure
     private const DIRECTORIES = [
         'public',
         'config',
-        'var',
         'var/cache',
+        'test',
     ];
 
     public function create(string $installationPath): void
     {
         foreach (self::DIRECTORIES as $directory) {
-            if (!mkdir($dir = sprintf('%s/%s', $installationPath, $directory)) && !is_dir($dir)) {
+            if (!mkdir($dir = sprintf('%s/%s', $installationPath, $directory), 0755, true) && !is_dir($dir)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
             }
         }
@@ -42,7 +42,7 @@ class FileStructure
         }
     }
 
-    private function getGitignore(): string
+    public static function getGitignore(): string
     {
         $gitignoreContents = <<<EOT
 /composer.lock
@@ -61,7 +61,7 @@ EOT;
         return $gitignoreContents;
     }
 
-    private function getConfig(): string
+    public static function getConfig(): string
     {
         $configContent = <<<'PHP'
 <?php
@@ -98,7 +98,7 @@ PHP;
         return $configContent;
     }
 
-    private function getContainer(): string
+    public static function getContainer(): string
     {
         $containerContent = <<<'PHP'
 <?php
@@ -117,7 +117,7 @@ PHP;
         return $containerContent;
     }
 
-    private function getIndex(): string
+    public static function getIndex(): string
     {
         $indexContent = <<<'PHP'
 <?php
@@ -129,8 +129,9 @@ use Antidot\Application\Http\Middleware\ErrorMiddleware;
 use Antidot\Application\Http\Middleware\RouteDispatcherMiddleware;
 use Antidot\Application\Http\Middleware\RouteNotFoundMiddleware;
 use Laminas\Diactoros\Response\JsonResponse;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
 
 if (PHP_SAPI === 'cli-server' && $_SERVER['SCRIPT_FILENAME'] !== __FILE__) {
     return false;
@@ -155,10 +156,14 @@ require 'vendor/autoload.php';
 
     // Application Routes    
     $app->get('/', [
+        static function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+            $request = $request->withAttribute('docs_url', 'https://antidotfw.io');
+            return $handler->handle($request);
+        },
         static function(ServerRequestInterface $request): ResponseInterface {
             return new JsonResponse([
-                'message' => 'Welcome to antidot Framework Micro HTTP App.',
-                'server_params' => $request->getServerParams(),
+                'message' => 'Welcome to Antidot Framework Micro HTTP App.',
+                'docs' => $request->getAttribute('docs_url'),
             ]);
         }
     ], 'homepage');
@@ -171,19 +176,70 @@ PHP;
         return $indexContent;
     }
 
-    private function getReadme(): string
+    public static function getReadme(): string
     {
-        $readmeContents = <<<EOT
+        $readmeContents = <<<'EOT'
 # Antidot Framework Micro HTTP App
 
 Lightweight PSR-15 middleware application.
+
+## Routing
+
+You can add your routes with it custom middlewares in `public/index.php` file, take a look at the example:
+
+```php 
+<?php
+// public/index.php
+declare(strict_types=1);
+
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
+...
+
+    // Application Routes    
+    $app->get('/', [
+        static function(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+            $request = $request->withAttribute('docs_url', 'https://antidotfw.io');
+            return $handler->handle($request);
+        },
+        static function(ServerRequestInterface $request): ResponseInterface {
+            return new JsonResponse([
+                'message' => 'Welcome to Antidot Framework Micro HTTP App.',
+                'docs' => $request->getAttribute('docs_url'),
+            ]);
+        }
+    ], 'homepage');
+...
+
+```
+
+## File structure
+
+```
+config/
+    config.php
+    container.php
+    framework.prod.php
+public/
+    index.php
+test/
+var/
+    cache/
+.gitignore
+composer.json
+phpcs.xml.dist
+phpunit.xml.dist
+README.md        
+```
+
 
 EOT;
 
         return $readmeContents;
     }
 
-    private function getFrameworkConfig(): string
+    public static function getFrameworkConfig(): string
     {
         $frameworkConfigContents = <<<'PHP'
 <?php
