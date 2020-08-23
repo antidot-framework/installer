@@ -29,7 +29,6 @@ class MicroAppInstaller implements App
         '/PULL_REQUEST_TEMPLATE.md',
         '/LICENSE',
     ];
-    private IOInterface $io;
     private Composer $composer;
     private InstallationPath $installationPathQuestion;
     private FileStructure $fileStructure;
