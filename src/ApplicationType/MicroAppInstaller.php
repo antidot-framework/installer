@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Antidot\Installer\ApplicationType;
 
-use Antidot\Installer\Question\InstallationPath;
 use Antidot\Installer\Template\ComposerJson;
 use Antidot\Installer\Template\FileStructureFactory;
 use Antidot\Installer\Template\Micro\FileStructure;
-use Composer\Composer;
 use Composer\IO\IOInterface;
-
-use function dirname;
 
 class MicroAppInstaller implements App
 {
@@ -21,29 +17,19 @@ class MicroAppInstaller implements App
         'antidot-fw/fast-router-adapter' => '^0.1.0',
     ];
 
-    private Composer $composer;
-    private InstallationPath $installationPathQuestion;
     private FileStructureFactory $fileStructure;
     private ComposerJson $manipulator;
     private DockerEnvironmentInstaller $dockerInstaller;
 
-    public function __construct(IOInterface $io, Composer $composer, ComposerJson $manipulator)
+    public function __construct(IOInterface $io, ComposerJson $manipulator)
     {
-        $this->composer = $composer;
         $this->manipulator = $manipulator;
         $this->dockerInstaller = new DockerEnvironmentInstaller($io);
-        $this->installationPathQuestion = new InstallationPath($io);
         $this->fileStructure = new FileStructure();
     }
 
-    public function install(): void
+    public function install(string $installationPath): void
     {
-        $installationPath = $this->installationPathQuestion->ask(
-            dirname($this->composer->getInstallationManager()->getInstallPath(
-                $this->composer->getPackage()
-            ), 3) . '/'
-        );
-
         $this->dockerInstaller->install($installationPath);
         $this->fileStructure->create($installationPath);
         $this->manipulator->prepare($installationPath, self::DEPENDENCIES, []);

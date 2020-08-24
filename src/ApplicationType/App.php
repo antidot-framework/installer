@@ -6,5 +6,5 @@ namespace Antidot\Installer\ApplicationType;
 
 interface App
 {
-    public function install(): void;
+    public function install(string $installationPath): void;
 }

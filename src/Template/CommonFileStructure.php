@@ -9,7 +9,7 @@ use RuntimeException;
 use function file_exists;
 use function file_put_contents;
 use function is_dir;
-use function is_readable;
+use function is_writable;
 use function method_exists;
 use function mkdir;
 use function sprintf;
@@ -25,14 +25,17 @@ abstract class CommonFileStructure implements FileStructureFactory
         '/LICENSE',
     ];
 
+    public const NOT_WRITABLE_MESSAGE = 'Given directory "%s" is not writable.';
+    public const NOT_PERMISSIONS_MESSAGE = 'Directory "%s" was not created by permission issues.';
+
     protected function verifyInstallationPath(string $installationPath): void
     {
         if (!is_dir($installationPath) && !mkdir($dir = $installationPath, 0755, true) && !is_dir($dir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
+            throw new RuntimeException(sprintf(self::NOT_PERMISSIONS_MESSAGE, $dir));
         }
 
-        if (!is_readable($installationPath)) {
-            throw new RuntimeException(sprintf('Given directory "%s" is not readable.', $installationPath));
+        if (!is_writable($installationPath)) {
+            throw new RuntimeException(sprintf(self::NOT_WRITABLE_MESSAGE, $installationPath));
         }
     }
 
@@ -56,9 +59,6 @@ abstract class CommonFileStructure implements FileStructureFactory
     protected function createFiles(string $installationPath, array $files): void
     {
         foreach ($files as $method => $filename) {
-            if (false === method_exists($this, $method)) {
-                throw new RuntimeException(sprintf('Method "%s" is not defined.', $method));
-            }
             file_put_contents(sprintf('%s/%s', $installationPath, $filename), $this->$method());
         }
     }
