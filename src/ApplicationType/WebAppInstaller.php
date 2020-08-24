@@ -12,19 +12,16 @@ class WebAppInstaller implements App
 {
     /** @var IOInterface */
     private IOInterface $io;
-    /** @var Composer */
-    private Composer $composer;
     /** @var ComposerJson */
     private ComposerJson $manipulator;
 
-    public function __construct(IOInterface $io, Composer $composer, ComposerJson $manipulator)
+    public function __construct(IOInterface $io, ComposerJson $manipulator)
     {
         $this->io = $io;
-        $this->composer = $composer;
         $this->manipulator = $manipulator;
     }
 
-    public function install(): void
+    public function install(string $installationPath): void
     {
         // TODO: Implement install() method.
     }

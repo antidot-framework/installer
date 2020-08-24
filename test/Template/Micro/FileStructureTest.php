@@ -5,11 +5,14 @@ declare(strict_types=1);
 
 namespace AntidotTest\Installer\Template\Micro;
 
+use Antidot\Installer\Template\CommonFileStructure;
 use Antidot\Installer\Template\Micro\FileStructure;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+
+use function sprintf;
 
 class FileStructureTest extends TestCase
 {
@@ -22,12 +25,18 @@ class FileStructureTest extends TestCase
         $this->assertEquals($expectedStructure, vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure());
     }
 
-    public function testItShouldThrowAnExceptionWithFileSystemPermissionIssues(): void
-    {
+    /** @dataProvider getWriteDirectories */
+    public function testItShouldThrowAnExceptionWithFileSystemPermissionIssues(
+        string $rootDir,
+        int $permissions,
+        string $installPath,
+        string $exceptionMessage
+    ): void {
+        vfsStream::setup($rootDir, $permissions);
         $this->expectException(RuntimeException::class);
-        vfsStream::setup('my-dir', 0444);
+        $this->expectExceptionMessage(sprintf($exceptionMessage, vfsStream::url($installPath)));
         $fileStructure = new FileStructure();
-        $fileStructure->create(vfsStream::url('my-dir'));
+        $fileStructure->create(vfsStream::url($installPath));
     }
 
     public function getExpectedStructure(): array
@@ -53,6 +62,24 @@ class FileStructureTest extends TestCase
                     ]
                 ],
             ]
+        ];
+    }
+
+    public function getWriteDirectories()
+    {
+        return [
+            'Existing Not writable dir' => [
+                'my-dir',
+                0444,
+                'my-dir',
+                CommonFileStructure::NOT_WRITABLE_MESSAGE,
+            ],
+            'Non Existing Not writable dir' => [
+                'my-dir',
+                0444,
+                'my-dir/some/path',
+                CommonFileStructure::NOT_PERMISSIONS_MESSAGE,
+            ],
         ];
     }
 }
