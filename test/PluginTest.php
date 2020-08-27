@@ -17,7 +17,7 @@ class PluginTest extends TestCase
     private $composer;
     private $io;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->composer = $this->createMock(Composer::class);
         $this->io = $this->createMock(IOInterface::class);
