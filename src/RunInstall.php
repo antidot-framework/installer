@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Antidot\Installer;
 
+use function exec;
+
 class RunInstall
 {
     /**
@@ -14,6 +16,6 @@ class RunInstall
      */
     public function exec(string $command, array &$output = null, int &$returnVar = null): string
     {
-        return \exec($command, $output, $returnVar);
+        return exec($command, $output, $returnVar);
     }
 }

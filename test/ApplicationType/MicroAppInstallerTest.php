@@ -45,7 +45,7 @@ class MicroAppInstallerTest extends TestCase
             ]
         );
         $installPath = vfsStream::url('my-dir');
-        $this->io->expects($this->once())
+        $this->io->expects($this->atLeastOnce())
             ->method('askConfirmation')
             ->willReturn( false);
 
