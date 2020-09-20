@@ -88,25 +88,6 @@ PHP;
         return $configContent;
     }
 
-    public static function getContainer(): string
-    {
-        $containerContent = <<<'PHP'
-<?php
-
-declare(strict_types=1);
-
-// Load configuration
-use Antidot\Container\Builder;
-
-$config = require __DIR__ . '/../config/config.php';
-
-return Builder::build($config, true);
-
-PHP;
-
-        return $containerContent;
-    }
-
     public static function getIndex(): string
     {
         $indexContent = <<<'PHP'
