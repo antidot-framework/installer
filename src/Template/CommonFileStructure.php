@@ -6,11 +6,12 @@ namespace Antidot\Installer\Template;
 
 use RuntimeException;
 
+use function chmod;
 use function file_exists;
 use function file_put_contents;
+use function in_array;
 use function is_dir;
 use function is_writable;
-use function method_exists;
 use function mkdir;
 use function sprintf;
 use function unlink;
@@ -23,6 +24,10 @@ abstract class CommonFileStructure implements FileStructureFactory
         '/CONTRIBUTING.md',
         '/PULL_REQUEST_TEMPLATE.md',
         '/LICENSE',
+    ];
+
+    public const EXECUTABLES = [
+        'bin/console',
     ];
 
     public const NOT_WRITABLE_MESSAGE = 'Given directory "%s" is not writable.';
@@ -59,7 +64,12 @@ abstract class CommonFileStructure implements FileStructureFactory
     protected function createFiles(string $installationPath, array $files): void
     {
         foreach ($files as $method => $filename) {
-            file_put_contents(sprintf('%s/%s', $installationPath, $filename), $this->$method());
+            $file = sprintf('%s/%s', $installationPath, $filename);
+            file_put_contents($file, $this->$method());
+
+            if (in_array($filename, self::EXECUTABLES, true)) {
+                chmod($file, 755);
+            }
         }
     }
 
@@ -71,5 +81,24 @@ abstract class CommonFileStructure implements FileStructureFactory
                 unlink($filePath);
             }
         }
+    }
+
+    public static function getContainer(): string
+    {
+        $containerContent = <<<'PHP'
+<?php
+
+declare(strict_types=1);
+
+// Load configuration
+use Antidot\Container\Builder;
+
+$config = require __DIR__ . '/../config/config.php';
+
+return Builder::build($config, true);
+
+PHP;
+
+        return $containerContent;
     }
 }
