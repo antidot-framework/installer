@@ -29,6 +29,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->installationPathQuestion = new InstallationPath($io);
     }
 
+    public function deactivate(Composer $composer, IOInterface $io): void
+    {
+        // Not needed
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io): void
+    {
+        // Not needed
+    }
+
 
     /** @return array<string, string> */
     public static function getSubscribedEvents(): array
